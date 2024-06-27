@@ -15,15 +15,17 @@ import 'package:onigiri_app/Numbers/Numbers.dart';
 import 'package:onigiri_app/colors.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Purchases.setDebugLogsEnabled(true);
-  await Purchases.setup("appl_JqYMEgLgGHKLoQeFTmINKThsDSE");
 
+  // SharedPreferences インスタンスを取得
   final prefs = await SharedPreferences.getInstance();
-  await prefs.setBool('isFirstLaunch', true); // デモのために強制的に初回起動をfalseに設定
+
+  // `isFirstLaunch` フラグを取得（存在しない場合は `true` をデフォルトにする）
   final isFirstLaunch = prefs.getBool('isFirstLaunch') ?? true;
 
+  // Flutter アプリを起動
   runApp(MyApp(isFirstLaunch: isFirstLaunch));
 }
 
@@ -172,7 +174,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           bottom: MediaQuery.of(context).size.height * 0.3, // 画面高の5%の下マージン
                         ),
                         child: ElevatedButton(
-                          onPressed: () {
+                          onPressed: () async {
+                            // チュートリアル終了時に `isFirstLaunch` フラグを false に更新
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setBool('isFirstLaunch', false);
+
+                            // ホーム画面に移動
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => Home()),
