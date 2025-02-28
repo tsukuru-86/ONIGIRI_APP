@@ -18,8 +18,8 @@
  */
 #define WIDTH 1000
 #define HEIGHT 800
-#define SCALE 30     // 座標の拡大率
-#define ALT 10 // 高さ（z値）の倍率
+#define SCALE 30    // 座標の拡大率
+#define ALT 10// 高さ（z値）の倍率
 
 /*
  * 高さマップを保持する構造体
@@ -43,6 +43,7 @@ typedef struct s_env
     double angle_x;  // X軸周りの回転角度（前後回転）
     int offset_x;    // X方向の描画オフセット
     int offset_y;    // Y方向の描画オフセット
+    double scale;
 } t_env;
 
 /*

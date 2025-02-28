@@ -2,16 +2,44 @@
 #include <math.h>
 
 /*
- * isometric(): 3D座標 (x, y, z) をアイソメトリック投影し、画面上の座標 (iso_x, iso_y) に変換する。
+ * isometric(): 3D座標 (x, y, z) をアイソメトリック投影し、直感的な回転を適用して
+ * 画面上の座標 (iso_x, iso_y) に変換する。
  */
 void isometric(int x, int y, int z, t_env *env, int *iso_x, int *iso_y)
 {
-    double rad_x = 30.0 * (M_PI / 180); // アイソメトリック角度を30度に設定
-    double rad_y = 30.0 * (M_PI / 180); // 30度の角度をx, y軸に適用
-
-    // アイソメトリック投影式
-    *iso_x = round((x - y) * cos(rad_x) * SCALE + env->offset_x);
-    *iso_y = round((x + y) * sin(rad_y) * SCALE - z * ALT + env->offset_y);
+    // 中心点を計算（原点を地図の中心に移動するため）
+    double center_x = (double)(env->map->cols - 1) / 2.0;
+    double center_y = (double)(env->map->rows - 1) / 2.0;
+    
+    // 原点を中心に移動
+    double rx = x - center_x;
+    double ry = y - center_y;
+    
+    // 高さスケーリングを直接適用 - ALT=0の場合は完全に平坦に
+    double rz = (double)z * ALT;
+    
+    // 角度をラジアンに変換
+    double angle_y = env->angle * (M_PI / 180.0);     // Y軸周り（横回転）- A/Dキー
+    double angle_x = env->angle_x * (M_PI / 180.0);   // X軸周り（縦回転）- W/Sキー
+    
+    // Z軸周りの回転（画面から見て時計回り/反時計回り）- A/Dキー
+    double temp_x = rx;
+    double temp_y = ry;
+    rx = temp_x * cos(angle_y) - temp_y * sin(angle_y);
+    ry = temp_x * sin(angle_y) + temp_y * cos(angle_y);
+    
+    // X軸周りの回転（画面から見て上下に傾ける）- W/Sキー
+    temp_y = ry;
+    double temp_z = rz;
+    ry = temp_y * cos(angle_x) - temp_z * sin(angle_x);
+    rz = temp_y * sin(angle_x) + temp_z * cos(angle_x);
+    
+    // アイソメトリックの基本角度
+    double iso_angle = 30.0 * (M_PI / 180.0);
+    
+    // 回転したモデルをアイソメトリック投影
+    *iso_x = round((rx - ry) * cos(iso_angle) * env->scale + env->offset_x);
+    *iso_y = round((rx + ry) * sin(iso_angle) * env->scale - rz + env->offset_y);
 }
 
 int get_color_from_z(int z)
@@ -258,9 +286,11 @@ int main(int argc, char **argv)
     }
     env.mlx = mlx_init();
     env.win = mlx_new_window(env.mlx, WIDTH, HEIGHT, "FDF");
-    env.angle = 30;           // 初期回転角度（度）
+    env.angle = 0;           // Y軸周りの初期回転角度（度）
+    env.angle_x = 0;         // X軸周りの初期回転角度（度）- 追加
     env.offset_x = WIDTH / 2; // X方向の初期オフセット（画面中央に配置）
-    env.offset_y = HEIGHT / 4;// Y方向の初期オフセット
+    env.offset_y = HEIGHT / 3;// Y方向の初期オフセット
+    env.scale = SCALE;      
     mlx_hook(env.win, 2, 1L<<0, key_hook, &env);
     draw_map(&env);
     mlx_loop(env.mlx);

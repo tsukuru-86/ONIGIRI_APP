@@ -17,8 +17,8 @@
  * ESC: 終了
  * 矢印キー: 平行移動
  * WASD: 3Dモデルの回転
- *   - W/S: X軸周りの回転（前後）
- *   - A/D: Y軸周りの回転（左右）
+ *   - W/S: X軸周りの回転（上下傾斜）
+ *   - A/D: Z軸周りの回転（時計回り/反時計回り）
  */
 int key_hook(int keycode, t_env *env)
 {
@@ -36,14 +36,18 @@ int key_hook(int keycode, t_env *env)
         env->offset_y -= 10;
     else if (keycode == 125)  // 下矢印キー
         env->offset_y += 10;
-    else if (keycode == 0)   // Aキー: 左回転
-        env->angle -= 5;
-    else if (keycode == 2)   // Dキー: 右回転
+    else if (keycode == 0)   // Aキー: 反時計回り回転
         env->angle += 5;
-    else if (keycode == 13)  // Wキー: 前回転
-        env->angle_x -= 5;
-    else if (keycode == 1)   // Sキー: 後回転
+    else if (keycode == 2)   // Dキー: 時計回り回転
+        env->angle -= 5;
+    else if (keycode == 13)  // Wキー: 上方向に傾ける
         env->angle_x += 5;
+    else if (keycode == 1)   // Sキー: 下方向に傾ける
+        env->angle_x -= 5;
+    else if (keycode == 41 || keycode == 47)
+        env->scale *= 1.2;
+    else if (keycode == 27 || keycode == 78)
+        env->scale /= 1.2;
     draw_map(env);
     return (0);
 }
