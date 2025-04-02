@@ -72,6 +72,8 @@ int interpolate_color(int color_start, int color_end, double t)
 }
 
 
+
+
 /*
  * draw_line(): Bresenham のアルゴリズムにより、(x0, y0) から (x1, y1) までの直線を描画する。
  */
@@ -153,7 +155,6 @@ void draw_map(t_env *env)
     }
 }
 
-
 /*
  * parse_map(): 指定された .fdf ファイルから地形データを読み込み、t_map 構造体に格納して返す。
  */
@@ -173,7 +174,6 @@ t_map *parse_map(const char *filename)
         return NULL;
 
     // 一度全行を読み、各行のトークン数を正確にカウントする
-    // （ここでは ft_split を使った例）
     char **tokens;
     while ((read = getline(&line, &len, file)) != -1)
     {
@@ -241,28 +241,28 @@ t_map *parse_map(const char *filename)
 /*
  * free_map(): parse_map() で確保したメモリを解放する
  */
-void free_map(t_map *map)
-{
-    int i;
-    for (i = 0; i < map->rows; i++)
-        free(map->data[i]);
-    free(map->data);
-    free(map);
-}
-
-void free_tokens(char **tokens)
-{
-    int i = 0;
-
-    if (!tokens)
-        return;
-    while (tokens[i])
-    {
-        free(tokens[i]);
-        i++;
-    }
-    free(tokens);
-}
+ void free_map(t_map *map)
+ {
+     int i;
+     for (i = 0; i < map->rows; i++)
+         free(map->data[i]);
+     free(map->data);
+     free(map);
+ }
+ 
+ void free_tokens(char **tokens)
+ {
+     int i = 0;
+ 
+     if (!tokens)
+         return;
+     while (tokens[i])
+     {
+         free(tokens[i]);
+         i++;
+     }
+     free(tokens);
+ }
 
 /*
  * main(): プログラムのエントリーポイント
